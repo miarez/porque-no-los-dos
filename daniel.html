@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pixels</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+</head>
+<body>
+
+<script>
+    const cs = console.log;
+
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 500;
+    canvas.height = 500;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    const circle = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 20,
+        dx: 2,
+        dy: 2,
+    };
+
+    function drawCircle() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "blue";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function update() {
+        circle.x += circle.dx;
+        circle.y += circle.dy;
+
+        // Bounce off the walls
+        if (circle.x - circle.radius < 0 || circle.x + circle.radius > canvas.width) {
+            circle.dx *= -1;
+        }
+        if (circle.y - circle.radius < 0 || circle.y + circle.radius > canvas.height) {
+            circle.dy *= -1;
+        }
+    }
+
+    function animate() {
+        drawCircle();
+        update();
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+
+</script>
+
+</body>
+</html>

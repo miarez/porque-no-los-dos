@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        svg {
+            background-color: rgb(255, 255, 0);
+            width: 500px;
+            height: 500px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        #circle:hover {
+            fill:green;
+        }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+    <!-- Circle -->
+    <circle cx="100" id="circle" cy="100" r="50" fill="red" onclick="convertToP5()"/>
+
+    <group id="palm-tree">
+
+    </group>
+
+    <!-- Triangle -->
+    <polygon points="200,100 250,50 300,100" fill="green" onclick="convertToP5()"/>
+
+    <!-- Rectangle -->
+    <rect x="350" y="50" width="100" height="100" fill="blue" onclick="convertToP5()" onmouseover="alert('sup dawg')"/>
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<script>
+    const cs = console.log;
+
+    function convertToP5() {
+        const svgContent = new XMLSerializer().serializeToString(document.querySelector('svg'));
+
+        document.body.innerHTML = '';
+
+        new p5(sketch);
+
+        let img;
+        let map = [];
+        let res = 10;
+        let blackHole;
+        let blackHoleStrength = 0.1;
+        let animationStarted = false;
+// ...
+
+        function sketch(p) {
+            let width = 500;
+            let height = 500;
+
+            let canvas;
+            let img;
+            let map = [];
+            let res = 10;
+            let blackHole;
+            let blackHoleStrength = 0.1;
+            let animationStarted = false;
+
+            p.setup = function() {
+                canvas = p.createCanvas(500, 500);
+                p.background(255, 255, 0);
+
+                img = p.createImg('data:image/svg+xml,' + encodeURIComponent(svgContent), '');
+                img.hide(); // Hide the original DOM element
+                p.image(img, 0, 0, p.width, p.height);
+
+                p.translate(p.width / 2, p.height / 2); // Center the canvas
+
+                // Create the initial array of cells
+                for (let x = 0; x < width; x += res) {
+                    for (let y = 0; y < height; y += res) {
+                        let cell = {
+                            'x': x,
+                            'y': y,
+                            'targetX': width / 2,
+                            'targetY': height / 2,
+                            'color': getColorAt(img, x, y),
+                            'wiggleX': p.random(-1, 1), // Add wiggle to X
+                            'wiggleY': p.random(-1, 1), // Add wiggle to Y
+                        };
+                        map.push(cell);
+                    }
+                }
+
+                blackHole = { x: width / 2, y: height / 2, radius: 20 };
+            };
+
+            p.draw = function() {
+                p.background(255);
+
+                blackHoleStrength += 0.5;
+
+                for (let i = 0; i < map.length; i++) {
+                    let cell = map[i];
+
+                    let forceX = blackHole.x - cell.x + cell.wiggleX;
+                    let forceY = blackHole.y - cell.y + cell.wiggleY;
+
+                    let distance = p.dist(cell.x, cell.y, blackHole.x, blackHole.y);
+                    forceX /= distance;
+                    forceY /= distance;
+
+                    cell.x += (forceX + cell.wiggleX) * blackHoleStrength;
+                    cell.y += (forceY + cell.wiggleY) * blackHoleStrength;
+
+                    if (p.dist(cell.x, cell.y, blackHole.x, blackHole.y) < blackHole.radius) {
+                        map.splice(i, 1);
+                        i--;
+                    }
+
+                    p.fill(cell.color);
+                    p.noStroke();
+                    p.rect(cell.x, cell.y, res, res);
+                }
+            };
+
+            function getColorAt(img, x, y) {
+                let ctx = canvas.drawingContext;
+                let imageData = ctx.getImageData(x, y, 1, 1);
+                let data = imageData.data;
+                return p.color(data[0], data[1], data[2]);
+            }
+        }
+// ...
+
+    }
+</script>
+
+</body>
+</html>

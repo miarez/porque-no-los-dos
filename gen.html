@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pixels</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+</head>
+<body>
+
+<script>
+    const cs = console.log;
+
+    let img;
+    let map = [];
+    let res = 10;
+    let expansionSpeed = 0.1;
+    let maxWiggle = 1000;
+    let wiggleDecay = 0.1;
+
+    function preload() {
+        img = loadImage('small.jpg', () => {
+            width = img.width;
+            height = img.height;
+        });
+
+        loadJSON('pixel_map.json', function(data) {
+            map = data;
+            cs(map);
+        });
+
+
+    }
+
+    function setup() {
+        createCanvas(img.width, img.height);
+
+        for (let i = 0; i < map.length; i++) {
+            let cell = map[i];
+            cell.x = 0;
+            cell.y = 0;
+            cell.wiggleX = random(-maxWiggle, maxWiggle);
+            cell.wiggleY = random(-maxWiggle, maxWiggle);
+        }
+
+        // Add collapse button
+        let collapseButton = createButton('Collapse');
+        collapseButton.position(10, height + 10);
+        collapseButton.mousePressed(collapse);
+    }
+
+    function draw() {
+        background(255);
+
+        translate(width/2, height/2);
+
+        let allStabilized = true;
+
+        for (let i = 0; i < map.length; i++) {
+            let cell = map[i];
+
+            let forceX = cell.targetX - cell.x + cell.wiggleX;
+            let forceY = cell.targetY - cell.y + cell.wiggleY;
+
+            cell.x += forceX * expansionSpeed;
+            cell.y += forceY * expansionSpeed;
+
+            cell.wiggleX *= (1 - wiggleDecay);
+            cell.wiggleY *= (1 - wiggleDecay);
+
+            fill(cell.color);
+            noStroke();
+            rect(cell.x, cell.y, res, res);
+
+            if (dist(cell.x, cell.y, cell.targetX, cell.targetY) > 1) {
+                allStabilized = false;
+            }
+        }
+
+        if (allStabilized) {
+            noLoop();
+            clear();
+            image(img, -width/2, -height/2);
+        }
+    }
+
+    // Collapse function
+    function collapse() {
+        loop(); // Restart the draw loop
+        background(0); // Set background to black
+
+        for (let i = 0; i < map.length; i++) {
+            let cell = map[i];
+
+            let forceX = blackHole.x - cell.x + cell.wiggleX;
+            let forceY = blackHole.y - cell.y + cell.wiggleY;
+
+            let distance = p.dist(cell.x, cell.y, blackHole.x, blackHole.y);
+            forceX /= distance;
+            forceY /= distance;
+
+            cell.x += (forceX + cell.wiggleX) * blackHoleStrength;
+            cell.y += (forceY + cell.wiggleY) * blackHoleStrength;
+
+            if (p.dist(cell.x, cell.y, blackHole.x, blackHole.y) < blackHole.radius) {
+                map.splice(i, 1);
+                i--;
+            }
+
+            p.fill(cell.color);
+            p.noStroke();
+            p.rect(cell.x, cell.y, res, res);
+        }
+    }
+
+</script>
+
+</body>
+</html>

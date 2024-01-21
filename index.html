@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Pixels</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+    </head>
+    <body>
+
+
+
+        <script>
+            const cs = console.log;
+
+            let img;
+            let map = [];
+            let res = 10;
+            let width;
+            let height;
+            let blackHole;
+            let blackHoleStrength = 0.1; // Adjust this value to control the strength of the black hole
+            let animationStarted = false;
+
+            function preload() {
+                img = loadImage('small.jpg', () => {
+                    width = img.width;
+                    height = img.height;
+                });
+            }
+
+            function setup() {
+                createCanvas(img.width, img.height);
+                image(img, 0, 0);
+                translate(width / 2, height / 2); // Center the canvas
+
+
+
+            }
+
+            function draw() {
+
+
+
+                // Check if the animation is started
+                if (animationStarted) {
+
+                    background(255);
+
+                    blackHoleStrength += 0.5
+
+                    // Apply gravitational force toward the black hole with added wiggle
+                    for (let i = 0; i < map.length; i++) {
+                        let cell = map[i];
+
+                        let forceX = blackHole.x - cell.x + cell.wiggleX;
+                        let forceY = blackHole.y - cell.y + cell.wiggleY;
+
+                        // Normalize the force to make it a unit vector
+                        let distance = dist(cell.x, cell.y, blackHole.x, blackHole.y);
+                        forceX /= distance;
+                        forceY /= distance;
+
+                        // Apply the force with added wiggle effect and black hole strength
+                        cell.x += (forceX + cell.wiggleX) * blackHoleStrength;
+                        cell.y += (forceY + cell.wiggleY) * blackHoleStrength;
+
+                        // Check if the cell is close enough to the black hole to be considered swallowed
+                        if (dist(cell.x, cell.y, blackHole.x, blackHole.y) < blackHole.radius) {
+                            // Remove the cell from the map when it reaches the event horizon
+                            map.splice(i, 1);
+                            i--; // Adjust the loop counter after removing an element
+                        }
+
+                        // Display the pixel at the updated position
+                        fill(cell.color);
+                        noStroke();
+                        rect(cell.x, cell.y, res, res);
+                    }
+                }
+            }
+
+            function mousePressed() {
+                // Start the animation when the canvas is clicked
+                if (!animationStarted) {
+                    // Create the initial array of cells
+                    for (let x = 0; x < img.width; x += res) {
+                        for (let y = 0; y < img.height; y += res) {
+                            let cell = {
+                                'x': x,
+                                'y': y,
+                                'targetX': width / 2,
+                                'targetY': height / 2,
+                                'color': img.get(x, y),
+                                'wiggleX': random(-1, 1), // Add wiggle to X
+                                'wiggleY': random(-1, 1), // Add wiggle to Y
+                            };
+                            map.push(cell);
+                        }
+                    }
+
+                    // Set the black hole at the dead center of the canvas
+                    blackHole = { x: width / 2, y: height / 2, radius: 20 };
+
+                    // Set the animationStarted flag to true
+                    animationStarted = true;
+                }
+            }
+
+
+
+
+        </script>
+
+
+
+    </body>
+</html>

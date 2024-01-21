@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    svg {
+      background-color: rgb(255, 255, 0);
+      width: 500px;
+      height: 500px;
+      transition: border 0.3s ease-in-out;
+    }
+
+    #circle:hover {
+      fill:darkred;
+    }
+  </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Circle -->
+  <circle cx="100" id="circle" cy="100" r="50" fill="red" onclick="convertToP5()"/>
+
+  <!-- Triangle -->
+  <polygon points="200,100 250,50 300,100" fill="green" onclick="convertToP5()"/>
+
+  <!-- Rectangle -->
+  <rect x="350" y="50" width="100" height="100" fill="blue" onclick="convertToP5()" onmouseover="alert('oh shit boi you hovered over the square')"/ >
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<script>
+  function convertToP5() {
+    // Get the SVG content
+    const svgContent = new XMLSerializer().serializeToString(document.querySelector('svg'));
+
+    // Clear previous content
+    document.body.innerHTML = '';
+
+    // Create a new p5.js canvas
+    new p5(sketch);
+
+    function sketch(p) {
+      p.setup = function() {
+        p.createCanvas(500, 500);
+        p.background(255, 255, 0);
+        // Draw the p5.js image
+        p.loadImage('data:image/svg+xml,' + encodeURIComponent(svgContent), img => {
+          p.image(img, 0, 0, p.width, p.height);
+        });
+      };
+    }
+  }
+</script>
+
+</body>
+</html>

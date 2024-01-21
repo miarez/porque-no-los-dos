@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pixels</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+</head>
+<body>
+
+<script>
+  const cs = console.log;
+
+  let img;
+  let map = [];
+  let res = 10;
+
+
+  function preload() {
+    img = loadImage('small.jpg', () => {
+      width = img.width;
+      height = img.height;
+    });
+  }
+
+  function setup() {
+    createCanvas(img.width, img.height);
+
+    // build map
+    for (let x = 0; x < img.width; x += res)
+    {
+      for (let y = 0; y < img.height; y += res)
+      {
+        let cell = {
+          'x': x,
+          'y': y,
+          'targetX': x - (width / 2),
+          'targetY': y - (height / 2),
+          'color': img.get(x, y)
+        };
+        map.push(cell);
+      }
+    }
+
+    document.write(JSON.stringify(map));
+
+    // draw map
+    for (let i = 0; i < map.length; i++) {
+      let cell = map[i];
+      fill(cell.color);
+      noStroke();
+      rect(cell.x, cell.y, res, res);
+    }
+
+  }
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>
