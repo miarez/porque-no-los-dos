@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<style>
+    body {
+        background-color: red;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    #container {
+        background-color: red;
+        box-sizing: border-box;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    #defaultCanvas0 {
+        box-sizing: border-box;
+    }
+
+    .box {
+        height: 50px;
+        width: 50px;
+    }
+</style>
+</head>
+<body>
+    <div id="container">
+        <div class="box" style="background-color: green;" onclick="do_thing()"></div>
+        <div class="box" style="background-color: yellow;" onclick="do_thing()"></div>
+        <div class="box" style="background-color: purple;" onclick="do_thing()"></div>
+        <div class="box" style="background-color: blue;" onclick="do_thing()"></div>
+        <p style="font-size: 5rem; color: pink; font-weight: 900;" onclick="do_thing()">HELLO</p>
+    </div>
+
+<script>
+ const cs = console.log;
+
+
+function do_thing(){
+
+    let animationStarted = false;
+    let blackHole = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: 50 };
+    let blackHoleStrength = 1;
+    let res = 10;
+    let map = [];
+    let wiggleDecayFactor = 0.99; // Decay factor for wiggle
+
+    let container = document.getElementById('container');
+
+    let canvas;
+    let context;
+
+    // Capture the screen using html2canvas
+    html2canvas(container, {
+        onrendered: function(c) {
+            canvas = c;
+            context = canvas.getContext('2d');
+
+            // Hide the HTML container 
+            container.style.display = 'none';
+
+            // Loop over the width & height of the context in increments of 10 
+            for (let y = 0; y < canvas.height; y += res) {
+                for (let x = 0; x < canvas.width; x += res) {
+                    // Grab the color value from context at the particular location
+                    const pixel = context.getImageData(x, y, 1, 1).data;
+                    const [r, g, b, a] = pixel;
+                    let cell = {
+                        x : x, 
+                        y: y,
+                        color: `rgba(${r},${g},${b},${a / 255})`,
+                        wiggleX: Math.random() * 10 - 5, // High initial wiggle
+                        wiggleY: Math.random() * 10 - 5 // High initial wiggle
+                    }
+                    map.push(cell);
+                }
+            }
+
+            // Initialize p5.js on the existing canvas element
+            new p5(p => {
+                p.setup = function() {
+                    p.createCanvas(canvas.width, canvas.height);
+                    animationStarted = true;
+                }
+                
+                p.draw = function() {
+                    if (animationStarted) {
+                        p.background(255);
+
+                        blackHoleStrength += 0.5;
+
+                        // Apply gravitational force toward the black hole with decaying wiggle
+                        for (let i = 0; i < map.length; i++) {
+                            let cell = map[i];
+
+                            let forceX = blackHole.x - cell.x;
+                            let forceY = blackHole.y - cell.y;
+
+                            // Normalize the force to make it a unit vector
+                            let distance = p.dist(cell.x, cell.y, blackHole.x, blackHole.y);
+                            forceX /= distance;
+                            forceY /= distance;
+
+                            // Apply the force with added wiggle effect and black hole strength
+                            cell.x += (forceX * blackHoleStrength) + cell.wiggleX;
+                            cell.y += (forceY * blackHoleStrength) + cell.wiggleY;
+
+                            // Decay the wiggle over time
+                            cell.wiggleX *= wiggleDecayFactor;
+                            cell.wiggleY *= wiggleDecayFactor;
+
+                            // Check if the cell is close enough to the black hole to be considered swallowed
+                            if (p.dist(cell.x, cell.y, blackHole.x, blackHole.y) < blackHole.radius) {
+                                // Remove the cell from the map when it reaches the event horizon
+                                map.splice(i, 1);
+                                i--; // Adjust the loop counter after removing an element
+                            }
+
+                            // Display the pixel at the updated position
+                            p.fill(cell.color);
+                            p.noStroke();
+                            p.rect(cell.x, cell.y, res, res);
+                        }
+
+                        // Check if all cells have been sucked into the black hole
+                        if (map.length === 0) {
+                            cs("done");
+                            p.noLoop(); // Stop the draw loop
+                        }
+                    }
+                }
+            }, document.body);
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
