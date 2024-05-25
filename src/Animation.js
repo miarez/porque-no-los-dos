@@ -23,7 +23,7 @@ class Animation {
             p.draw = function() {
 
                 if (animationStarted) {
-                    p.background(50);
+                    p.background(60,81,84);
 
                     blackHoleStrength += 0.9;
 
