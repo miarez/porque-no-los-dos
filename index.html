@@ -63,7 +63,7 @@
             <rect x="350" y="50" width="100" height="100" fill="blue"/>
         </svg>
     </div> -->
-
+⌈
 
 <script src="src/MapBuilder.js"></script>
 <script src="src/Animation.js"></script>
@@ -79,8 +79,6 @@
         })
     };
 
-
-
     function do_thing(){
         let container   = document.getElementById('container')
         let content     = document.getElementById('content')
@@ -88,14 +86,15 @@
             content
         ).then(map => {
             container.innerHTML = ""
-
             let animation = new Animation(container, map, 10, 255)
-            animation.blackhole(function() { cs("DONE"); })
+            animation.particleSwarm(function() { cs("DONE"); })
         }).catch(error => {
             console.error(error);
         });
 
     }
+
+    
 
 
 
