@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<style>
+    body {
+        /* background-color: red; */
+        padding: 0px;
+        margin: 0px;
+        /* background-color: pink; */
+    }
+
+    #container {
+        box-sizing: border-box;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    #defaultCanvas0 {
+        box-sizing: border-box;
+    }
+
+    .box {
+        height: 50px;
+        width: 50px;
+    }
+
+    #my-rect {
+        fill:lightgray;
+    }
+</style>
+</head>
+<body>
+    <!-- <div id="container">
+        <div id="content" style="width:100%; height: 100%;">
+            <div class="box" style="background-color: green;" onclick="do_thing()"></div>
+            <div class="box" style="background-color: yellow;" onclick="do_thing()"></div>
+            <div class="box" style="background-color: purple;" onclick="do_thing()"></div>
+            <div class="box" style="background-color: blue;" onclick="do_thing()"></div>
+            <p style="font-size: 5rem; color: pink; font-weight: 900;" onclick="do_thing()">HELLO</p>
+        </div>
+    </div> -->
+
+    <div id="container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" id="content">
+            <rect width="100%" height="100%" id="my-rect" fill="lightgray"/>
+            <circle cx="100" id="circle" cy="100" r="50" fill="yellow" />    
+            <polygon points="200,100 250,50 300,100" fill="green" />
+            <rect x="350" y="50" width="100" height="100" fill="blue"/>
+        </svg>
+    </div>
+
+
+<script src="src/MapBuilder.js"></script>
+<script src="src/Animation.js"></script>
+
+<script>
+    const cs = console.log;
+
+    function do_thing(){
+        let container   = document.getElementById('container')
+        let content     = document.getElementById('content')
+        MapBuilder.build(
+            content
+        ).then(map => {
+            container.innerHTML = ""
+            Animation.render(map, function() { alert("MEOW"); })
+        }).catch(error => {
+            console.error(error);
+        });
+
+    }
+
+
+
+</script>
+
+</body>
+</html>
