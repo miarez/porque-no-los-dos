@@ -27,11 +27,7 @@ class MapBuilder {
                 onrendered: function(canvas) {
                     const context = canvas.getContext('2d');
                     const map = MapBuilder.extractMapFromCanvas(canvas, context);
-                    resolve({
-                        map: map,
-                        width: canvas.width,
-                        height: canvas.height
-                    });
+                    resolve(map);
                 },
                 onerror: function(error) {
                     reject(error);
@@ -60,11 +56,7 @@ class MapBuilder {
 
                 const map = MapBuilder.extractMapFromCanvas(canvas, context);
                 URL.revokeObjectURL(url);
-                resolve({
-                    map: map,
-                    width: width,
-                    height: height
-                });
+                resolve(map);
             };
 
             image.onerror = function (error) {
