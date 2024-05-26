@@ -197,7 +197,10 @@ class Animation {
                         color: cell.color
                     });
                 }
-                attractors.push(p.createVector(p.random(this.w), p.random(this.h)));
+
+                // attractors.push(p.createVector(p.mouseX, p.mouseY));
+
+                cs(attractors)
             };
     
             p.draw = () => {
@@ -226,6 +229,85 @@ class Animation {
     }
     
     
+    meteorShower(callBack) {
+        let meteors = [];
+    
+        new p5(p => {
+            p.setup = () => {
+                p.createCanvas(this.w, this.h).parent(container);
+                for (let i = 0; i < this.map.length; i++) {
+                    let cell = this.map[i];
+                    meteors.push({
+                        pos: p.createVector(cell.x, p.random(-100, -10)),
+                        vel: p.createVector(p.random(-2, 2), p.random(2, 5)),
+                        color: cell.color
+                    });
+                }
+            };
+    
+            p.draw = () => {
+                p.background(this.background_color);
+                for (let i = meteors.length - 1; i >= 0; i--) {
+                    let meteor = meteors[i];
+                    meteor.pos.add(meteor.vel);
+                    p.fill(...meteor.color);
+                    p.noStroke();
+                    p.ellipse(meteor.pos.x, meteor.pos.y, 4);
+                    p.stroke(...meteor.color);
+                    p.line(meteor.pos.x, meteor.pos.y, meteor.pos.x - meteor.vel.x * 10, meteor.pos.y - meteor.vel.y * 10);
+                    if (meteor.pos.y > this.h) {
+                        meteors.splice(i, 1);
+                    }
+                }
+                if (meteors.length === 0) {
+                    callBack();
+                    p.noLoop();
+                }
+            };
+        }, container);
+    }
+    
 
+    growingTree(callBack) {
+        let branches = [];
+        let maxDepth = 8;
+        let branchAngle = p.PI / 4;
+        let branchLength = 100;
+    
+        function branch(start, depth, angle, length, color, p) {
+            if (depth === 0) return;
+            let end = p.createVector(
+                start.x + length * p.cos(angle),
+                start.y + length * p.sin(angle)
+            );
+            branches.push({ start, end, color });
+            branch(end, depth - 1, angle - branchAngle, length * 0.67, color, p);
+            branch(end, depth - 1, angle + branchAngle, length * 0.67, color, p);
+        }
+    
+        new p5(p => {
+            p.setup = () => {
+                p.createCanvas(this.w, this.h).parent(container);
+                for (let i = 0; i < this.map.length; i++) {
+                    let cell = this.map[i];
+                    branch(p.createVector(cell.x, cell.y), maxDepth, -p.PI / 2, branchLength, cell.color, p);
+                }
+            };
+    
+            p.draw = () => {
+                p.background(this.background_color);
+                for (let i = 0; i < branches.length; i++) {
+                    let branch = branches[i];
+                    p.stroke(...branch.color);
+                    p.line(branch.start.x, branch.start.y, branch.end.x, branch.end.y);
+                }
+                if (branches.length === 0) {
+                    callBack();
+                    p.noLoop();
+                }
+            };
+        }, container);
+    }
+    
 
 }
