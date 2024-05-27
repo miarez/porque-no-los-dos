@@ -1,6 +1,9 @@
 # Porque No Los Dos / Why not both?
 ## SVG / HTML To Canvas <--> and vice versa
+! Note : Library is still very much Work-In-Progress! Do not Use :D
+
 <img src="lib-demo.gif">
+
 
 ## Back Story:
 
